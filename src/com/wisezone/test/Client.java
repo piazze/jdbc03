@@ -48,7 +48,7 @@ public class Client {
     }
     public static void main(String[] args) {
         //测试添加
-        add();
+        //add();
 
         //测试根据id查询
         //queryOne();
@@ -60,6 +60,6 @@ public class Client {
         //remove();
 
         //测试查询全部
-        //queryAll();
+        queryAll();
     }
 }

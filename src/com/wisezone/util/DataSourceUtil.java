@@ -3,6 +3,8 @@ package com.wisezone.util;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +29,8 @@ public class DataSourceUtil {
 
     private static DruidDataSource dataSource = null;
 
+    //log4j日志
+    private static Logger logger = LoggerFactory.getLogger(DataSourceUtil.class);
     static {
         Properties properties = new Properties();
         InputStream in = DataSourceUtil.class.getResourceAsStream("/jdbc.properties");
@@ -41,11 +45,13 @@ public class DataSourceUtil {
             String publicKey = properties.getProperty("publicKey");
             //对密码解密
             dataSource.setConnectionProperties("config.decrypt=true;config.decrypt.key=" + publicKey);
-
+            logger.info("初始化数据源成功");
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error("jdbc.properties加载失败");
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
@@ -67,6 +73,7 @@ public class DataSourceUtil {
                 return newConnection;
             } catch (SQLException e) {
                 e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
         //直接return从ThreadLocal中获取的Connection
@@ -174,12 +181,16 @@ public class DataSourceUtil {
             }
 
             int row = pstmt.executeUpdate();
+            logger.info("执行sql语句：" + sql);
+            logger.info("返回受影响的行数：" + row );
             return row;
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } finally{ //不管程序是否出现异常都会执行的代码块
             closePstmt(pstmt);
             closeConnection(conn);
+            logger.info("关闭连接，释放资源");
         }
         return -1;
     }
@@ -218,7 +229,9 @@ public class DataSourceUtil {
 
                 //将对象t插入到集合中
                 list.add(t);
+                logger.info("组建对象："  + t);
             }
+            logger.info("返回集合长度为：" + list.size());
             return list;
         } catch (SQLException e) {
             e.printStackTrace();
